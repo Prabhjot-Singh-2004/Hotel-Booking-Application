@@ -30,9 +30,9 @@ export default function PlacesFormPage() {
             const { data } = response;
             setTitle(data.title);
             setAddress(data.address);
-            setAddedPhotos(data.photos);
+            setAddedPhotos(Array.isArray(data.photos) ? data.photos : []);
             setDescription(data.description);
-            setPerks(data.perks);
+            setPerks(Array.isArray(data.perks) ? data.perks : []);
             setExtraInfo(data.extraInfo);
             setCheckIn(data.checkIn);
             setCheckOut(data.checkOut);

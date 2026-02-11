@@ -15,7 +15,11 @@ export default function ProfilePage() {
     }
 
     async function logout() {
-        await axios.post('/logout');
+        try {
+            await axios.post('/logout');
+        } catch (error) {
+            // Still log out locally even if the server call fails
+        }
         setRedirect('/');
         setUser(null);
     }

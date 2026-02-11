@@ -17,7 +17,8 @@ export default function BookingPlace() {
     useEffect(() => {
         if (id) {
             axios.get('/bookings').then(response => {
-                const foundBooking = response.data.find(({ _id }) => _id === id);
+                const bookingsData = Array.isArray(response.data) ? response.data : [];
+                const foundBooking = bookingsData.find(({ _id }) => _id === id);
                 if (foundBooking) {
                     setBooking(foundBooking);
                 }

@@ -27,9 +27,10 @@ export default function IndexPage() {
     useEffect(() => {
         const params = debouncedQuery.trim() ? { search: debouncedQuery.trim() } : {};
         axios.get('/places', { params }).then(response => {
-            setPlaces(response.data);
+            setPlaces(Array.isArray(response.data) ? response.data : []);
             setLoading(false);
         }).catch(() => {
+            setPlaces([]);
             setLoading(false);
         });
     }, [debouncedQuery]);

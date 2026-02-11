@@ -11,9 +11,10 @@ export default function PlacesPage() {
 
     useEffect(() => {
         axios.get('/user-places').then(({ data }) => {
-            setPlaces(data);
+            setPlaces(Array.isArray(data) ? data : []);
             setLoading(false);
         }).catch(() => {
+            setPlaces([]);
             setLoading(false);
         });
     }, []);

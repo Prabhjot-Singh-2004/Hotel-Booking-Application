@@ -10,8 +10,12 @@ export default function ReviewSystem({ placeId }) {
     const toast = useToast();
 
     useEffect(() => {
-        axios.get(`/api/reviews/${placeId}`).then(response => setReviews(response.data))
-            .catch(() => {});
+        axios.get(`/api/reviews/${placeId}`).then(response => {
+            const data = response.data;
+            setReviews(Array.isArray(data.reviews) ? data.reviews : Array.isArray(data) ? data : []);
+        }).catch(() => {
+            setReviews([]);
+        });
     }, [placeId]);
 
     const submitReview = async (e) => {
