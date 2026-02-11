@@ -33,7 +33,10 @@ app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
 app.use(cors({
     credentials: true,
-    origin: clientUrl,
+    origin: [
+    'http://localhost:5173',
+    'https://hotel-booking-application-pi.vercel.app'
+  ],
 }));
 
 // ── Rate Limiting ──────────────────────────────────────────────────────
