@@ -4,37 +4,80 @@ import axios from "axios";
 import PlacesImg from "../PlacesImg";
 import { differenceInCalendarDays, format } from "date-fns";
 import { Link } from "react-router-dom";
+import Spinner from "../Spinner";
+import { useToast } from "../Toast.jsx";
 
 export default function BookingsPage() {
     const [bookings, setBookings] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const toast = useToast();
+
     useEffect(() => {
         axios.get('/bookings').then(response => {
             setBookings(response.data);
+            setLoading(false);
+        }).catch(() => {
+            setLoading(false);
         });
     }, []);
+
+    async function cancelBooking(ev, bookingId) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+        try {
+            await axios.delete(`/bookings/${bookingId}`);
+            setBookings(prev => prev.filter(b => b._id !== bookingId));
+            toast.success('Booking cancelled successfully');
+        } catch (error) {
+            toast.error('Failed to cancel booking');
+        }
+    }
+
+    if (loading) {
+        return (
+            <div>
+                <AccountNav />
+                <Spinner />
+            </div>
+        );
+    }
+
     return (
         <div>
             <AccountNav />
-            <div>
-                {bookings?.length > 0 && bookings.map(booking => (
-                    <Link to={`/account/bookings/${booking._id}`} className="flex gap-4 p-4 border border-gray-500 bg-gray-200 rounded-2xl overflow-hidden">
-                        <div className="w-60">
+
+            {bookings.length === 0 && (
+                <div className="text-center py-16 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-16 mx-auto mb-4 text-gray-300">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 2.994v2.25m10.5-2.25v2.25m-14.252 13.5V7.491a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v11.251m-18 0a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5" />
+                    </svg>
+                    <p className="text-lg">You have no bookings yet</p>
+                    <p className="text-sm mt-1">Browse places and book your next stay</p>
+                    <Link to="/" className="mt-4 inline-block text-primary underline">Browse places</Link>
+                </div>
+            )}
+
+            <div className="space-y-4">
+                {bookings.map(booking => (
+                    <Link to={`/account/bookings/${booking._id}`} key={booking._id} className="flex flex-col sm:flex-row gap-4 p-4 border border-gray-500 bg-gray-200 rounded-2xl overflow-hidden">
+                        <div className="w-full sm:w-60 h-48 sm:h-auto shrink-0">
                             <PlacesImg place={booking.place} />
                         </div>
                         <div className="py-3 grow pr-3">
                             <h2 className="text-xl">{booking.place.title}</h2>
                             <div className="text-l">
-                                <div className="flex gap-2 mb-2 mt-2 ">
+                                <div className="flex flex-wrap gap-2 mb-2 mt-2">
                                     <div className="flex gap-1 items-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 2.994v2.25m10.5-2.25v2.25m-14.252 13.5V7.491a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v11.251m-18 0a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5m-6.75-6h2.25m-9 2.25h4.5m.002-2.25h.005v.006H12v-.006Zm-.001 4.5h.006v.006h-.006v-.005Zm-2.25.001h.005v.006H9.75v-.006Zm-2.25 0h.005v.005h-.006v-.005Zm6.75-2.247h.005v.005h-.005v-.005Zm0 2.247h.006v.006h-.006v-.006Zm2.25-2.248h.006V15H16.5v-.005Z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 2.994v2.25m10.5-2.25v2.25m-14.252 13.5V7.491a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v11.251m-18 0a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5" />
                                         </svg>
                                         {format(new Date(booking.checkIn), 'yyyy-MM-dd')}
                                     </div>
                                     &rarr;
                                     <div className="flex gap-1 items-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 2.994v2.25m10.5-2.25v2.25m-14.252 13.5V7.491a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v11.251m-18 0a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5m-6.75-6h2.25m-9 2.25h4.5m.002-2.25h.005v.006H12v-.006Zm-.001 4.5h.006v.006h-.006v-.005Zm-2.25.001h.005v.006H9.75v-.006Zm-2.25 0h.005v.005h-.006v-.005Zm6.75-2.247h.005v.005h-.005v-.005Zm0 2.247h.006v.006h-.006v-.006Zm2.25-2.248h.006V15H16.5v-.005Z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 2.994v2.25m10.5-2.25v2.25m-14.252 13.5V7.491a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v11.251m-18 0a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5" />
                                         </svg>
                                         {format(new Date(booking.checkOut), 'yyyy-MM-dd')}
                                     </div>
@@ -53,13 +96,17 @@ export default function BookingsPage() {
                                         Total Price: Rs{booking.price}
                                     </div>
                                 </div>
+                                <button
+                                    onClick={(ev) => cancelBooking(ev, booking._id)}
+                                    className="mt-3 bg-red-500 text-white py-1 px-4 rounded-full text-sm hover:bg-red-600"
+                                >
+                                    Cancel Booking
+                                </button>
                             </div>
-
                         </div>
                     </Link>
                 ))}
             </div>
         </div>
-
     );
 }

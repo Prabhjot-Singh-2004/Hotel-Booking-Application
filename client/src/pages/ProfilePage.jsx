@@ -1,9 +1,10 @@
 import { useContext, useState } from "react";
 import { UserContext } from "../UserContext";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import axios from "axios";
 import PlacesPage from "./PlacesPage";
 import AccountNav from "../AccountNav";
+import Spinner from "../Spinner";
 
 export default function ProfilePage() {
     const [redirect, setRedirect] = useState(null);
@@ -14,14 +15,13 @@ export default function ProfilePage() {
     }
 
     async function logout() {
-
         await axios.post('/logout');
         setRedirect('/');
         setUser(null);
     }
 
     if (!ready) {
-        return 'Loading....'
+        return <Spinner />;
     }
 
     if (ready && !user && !redirect) {
@@ -29,8 +29,9 @@ export default function ProfilePage() {
     }
 
     if (redirect) {
-        return <Navigate to={redirect}></Navigate>
+        return <Navigate to={redirect} />
     }
+
     return (
         <div>
             <AccountNav />
@@ -41,7 +42,7 @@ export default function ProfilePage() {
                 </div>
             )}
             {subpage === 'places' && (
-                <PlacesPage></PlacesPage>
+                <PlacesPage />
             )}
         </div>
     );

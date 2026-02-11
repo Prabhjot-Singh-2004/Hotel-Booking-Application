@@ -1,28 +1,48 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useToast } from './Toast.jsx';
 
 export default function ReviewSystem({ placeId }) {
     const [reviews, setReviews] = useState([]);
     const [text, setText] = useState('');
     const [rating, setRating] = useState(0);
     const [hover, setHover] = useState(0);
+    const toast = useToast();
 
     useEffect(() => {
         axios.get(`/api/reviews/${placeId}`).then(response => setReviews(response.data))
-            .catch(err => console.error("Failed to load reviews", err));
+            .catch(() => {});
     }, [placeId]);
 
     const submitReview = async (e) => {
         e.preventDefault();
-        const res = await axios.post('/api/reviews', { placeId, text, rating });
-        setReviews([res.data, ...reviews]);
-        setText('');
-        setRating(0);
+        if (!rating) {
+            toast.error('Please select a rating');
+            return;
+        }
+        if (!text.trim()) {
+            toast.error('Please write a review');
+            return;
+        }
+        try {
+            const res = await axios.post('/api/reviews', { placeId, text, rating });
+            setReviews([res.data, ...reviews]);
+            setText('');
+            setRating(0);
+            toast.success('Review submitted');
+        } catch (error) {
+            toast.error('Failed to submit review');
+        }
     };
 
     const deleteReview = async (id) => {
-        await axios.delete(`/api/reviews/${id}`);
-        setReviews(reviews.filter(r => r._id !== id));
+        try {
+            await axios.delete(`/api/reviews/${id}`);
+            setReviews(reviews.filter(r => r._id !== id));
+            toast.success('Review deleted');
+        } catch (error) {
+            toast.error('Failed to delete review');
+        }
     };
 
     return (
@@ -57,15 +77,15 @@ export default function ReviewSystem({ placeId }) {
 
             <div className="mt-6">
                 <h2 className="text-xl font-semibold mb-2">Reviews:</h2>
-                {reviews.length === 0 && <p>No reviews yet.</p>}
+                {reviews.length === 0 && <p className="text-gray-500">No reviews yet. Be the first to review!</p>}
                 {reviews.map((review) => (
                     <div key={review._id} className="mb-4 p-4 bg-white rounded shadow relative">
                         <div className="flex items-center gap-2 mb-1">
                             {[...Array(review.rating)].map((_, i) => (
-                                <span key={i}>⭐</span>
+                                <Star key={i} filled={true} />
                             ))}
                             {[...Array(5 - review.rating)].map((_, i) => (
-                                <span key={i}>☆</span>
+                                <Star key={i} filled={false} />
                             ))}
                         </div>
                         <p>{review.text}</p>
@@ -81,7 +101,6 @@ export default function ReviewSystem({ placeId }) {
                     </div>
                 ))}
             </div>
-
         </div>
     );
 }

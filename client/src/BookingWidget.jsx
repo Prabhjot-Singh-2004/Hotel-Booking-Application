@@ -3,14 +3,16 @@ import { differenceInCalendarDays } from "date-fns";
 import axios from "axios";
 import { Navigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
+import { useToast } from "./Toast.jsx";
 
 export default function BookingWidget({ place }) {
     const [checkIn, setCheckIn] = useState('');
     const [checkOut, setCheckOut] = useState('');
     const [numberOfGuests, setNumberOfGuests] = useState(1);
     const [name, setName] = useState('');
-    const [phone, setphone] = useState('');
+    const [phone, setPhone] = useState('');
     const [redirect, setRedirect] = useState('');
+    const toast = useToast();
 
     const { user } = useContext(UserContext);
 
@@ -20,7 +22,6 @@ export default function BookingWidget({ place }) {
         }
     }, [user]);
 
-
     let numberOfNights = 0;
 
     if (checkIn && checkOut) {
@@ -28,13 +29,36 @@ export default function BookingWidget({ place }) {
     }
 
     async function bookThisPlace() {
-        const response = await axios.post('/bookings', {
-            checkIn, checkOut, numberOfGuests, name, phone,
-            place: place._id,
-            price: numberOfNights * place.price,
-        });
-        const bookingId = response.data._id;
-        setRedirect(`/account/bookings/${bookingId}`)
+        if (!user) {
+            toast.error('Please log in to book a place');
+            return;
+        }
+        if (!checkIn || !checkOut) {
+            toast.error('Please select check-in and check-out dates');
+            return;
+        }
+        if (numberOfNights <= 0) {
+            toast.error('Check-out must be after check-in');
+            return;
+        }
+        if (!name || !phone) {
+            toast.error('Please fill in your name and phone number');
+            return;
+        }
+
+        try {
+            const response = await axios.post('/bookings', {
+                checkIn, checkOut, numberOfGuests, name, phone,
+                place: place._id,
+                price: numberOfNights * place.price,
+            });
+            const bookingId = response.data._id;
+            toast.success('Booking confirmed!');
+            setRedirect(`/account/bookings/${bookingId}`);
+        } catch (error) {
+            const msg = error.response?.data?.message || 'Booking failed. Please try again.';
+            toast.error(msg);
+        }
     }
 
     if (redirect) {
@@ -43,18 +67,18 @@ export default function BookingWidget({ place }) {
 
     return (
         <div className="bg-white shadow-md p-4 rounded-2xl">
-            <div className="text-2xl mb-2 text-center">
+            <div className="text-xl sm:text-2xl mb-2 text-center">
                 Price: Rs {place.price}/per night
             </div>
             <div className="border rounded-2xl mt-4">
-                <div className="flex">
+                <div className="flex flex-col sm:flex-row">
                     <div className="py-3 px-4">
                         <label>Check in:</label>
                         <input type="date"
                             value={checkIn}
                             onChange={(ev) => setCheckIn(ev.target.value)} />
                     </div>
-                    <div className="py-3 px-4 border-l">
+                    <div className="py-3 px-4 border-t sm:border-t-0 sm:border-l">
                         <label>Check out:</label>
                         <input type="date"
                             value={checkOut}
@@ -65,21 +89,18 @@ export default function BookingWidget({ place }) {
                     <label>Number of Guests:</label>
                     <input type="number"
                         value={numberOfGuests}
-                        onChange={(ev) => setNumberOfGuests(ev.target.value)
-                        } />
+                        onChange={(ev) => setNumberOfGuests(ev.target.value)} />
                 </div>
                 {numberOfNights > 0 && (
                     <div className="py-3 px-4 border-t">
                         <label>Your Full Name:</label>
                         <input type="text"
                             value={name}
-                            onChange={(ev) => setName(ev.target.value)
-                            } />
+                            onChange={(ev) => setName(ev.target.value)} />
                         <label>Phone Number:</label>
                         <input type="tel"
                             value={phone}
-                            onChange={(ev) => setphone(ev.target.value)
-                            } />
+                            onChange={(ev) => setPhone(ev.target.value)} />
                     </div>
                 )}
             </div>

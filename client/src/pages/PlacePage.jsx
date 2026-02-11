@@ -1,31 +1,40 @@
 import axios from "axios";
-import { useState } from "react";
-import { useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import BookingWidget from "../BookingWidget";
 import ReviewSystem from "../ReviewSystem";
 import PlaceGallery from "../PlaceGallery";
 import AddressLink from "../AddressLink";
+import Spinner from "../Spinner";
 
 export default function PlacePage() {
     const { id } = useParams();
     const [place, setPlace] = useState(null);
-    
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
-        if (!id) {
-            return;
-        }
+        if (!id) return;
         axios.get(`/places/${id}`).then(response => {
-            setPlace(response.data)
+            setPlace(response.data);
+            setLoading(false);
+        }).catch(() => {
+            setLoading(false);
         });
     }, [id]);
 
-    if (!place) return '';
+    if (loading) return <Spinner />;
 
-    
+    if (!place) {
+        return (
+            <div className="text-center py-16 text-gray-500">
+                <p className="text-lg">Place not found</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="mt-4 bg-gray-100 -mx-8 px-8 py-8">
-            <h1 className="text-3xl">{place.title}</h1>
+        <div className="mt-4 bg-gray-100 -mx-4 md:-mx-8 px-4 md:px-8 py-8">
+            <h1 className="text-2xl md:text-3xl">{place.title}</h1>
             <AddressLink>{place.address}</AddressLink>
             <PlaceGallery place={place} />
 
@@ -38,7 +47,6 @@ export default function PlacePage() {
                     <b>Check-in:</b> {place.checkIn} <br />
                     <b>Check-out:</b> {place.checkOut} <br />
                     <b>Max number of Guests:</b> {place.maxGuests}
-
                 </div>
                 <div>
                     <BookingWidget place={place} />
@@ -46,11 +54,11 @@ export default function PlacePage() {
             </div>
             <div className="max-w-full mx-auto bg-white shadow-md rounded-xl p-6 mt-8">
                 <div>
-                <h2 className="font-semibold text-2xl">Extra Information</h2>
-            </div>
-            <div className="mb-4 mt-1 text-sm text-gray-700 leading-5">
-                {place.extraInfo}
-            </div>
+                    <h2 className="font-semibold text-2xl">Extra Information</h2>
+                </div>
+                <div className="mb-4 mt-1 text-sm text-gray-700 leading-5">
+                    {place.extraInfo}
+                </div>
             </div>
 
             <div>

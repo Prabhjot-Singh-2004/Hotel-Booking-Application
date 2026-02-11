@@ -4,7 +4,7 @@ export default function PlacesImg({place,index=0,className}){
     }
 
     if(!className){
-        className='object-cover';
+        className='object-cover w-full h-full';
     }
 
     return(

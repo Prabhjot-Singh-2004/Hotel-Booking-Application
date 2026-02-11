@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  overflow-x: hidden;
+}
+
 input[type="text"], input[type="password"], input[type="email"], input[type="number"], input[type="tel"],
   textarea{
   @apply w-full border my-1 py-2 px-3 rounded-2xl;
@@ -17,4 +21,19 @@ button{
 button.primary{
   background-color:#F5385D;
   @apply bg-primary p-2 w-full text-white rounded-2xl;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
 }
