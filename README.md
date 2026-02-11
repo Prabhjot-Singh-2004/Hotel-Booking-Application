@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # AirHotel - Online Hotel Booking Platform
 
 A full-stack hotel booking web application built with the MERN stack (MongoDB, Express, React, Node.js). Users can browse listings, search by location, book accommodations, and manage their own property listings -- similar to Airbnb.
@@ -438,4 +437,3 @@ Create a `.env` file in the `api/` directory using `.env.example` as a template:
 | `POST` | `/upload-by-link` | Yes | Download and save image from URL |
 | `POST` | `/upload` | Yes | Upload image files (multipart) |
 
->>>>>>> 33675b80e06e4dc211cfaace1f8af5a277ba5b6b
