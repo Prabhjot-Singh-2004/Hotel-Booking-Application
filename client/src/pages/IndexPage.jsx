@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Spinner from "../Spinner";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
 export default function IndexPage() {
     const [places, setPlaces] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -39,10 +41,27 @@ export default function IndexPage() {
         };
     }, []);
 
+    // Pad the grid with repeated listings when there are fewer than 16
+    function getDisplayPlaces() {
+        const MIN_CARDS = 16;
+        if (searchInput || places.length === 0 || places.length >= MIN_CARDS) {
+            return places;
+        }
+        const repeated = [];
+        let i = 0;
+        while (repeated.length < MIN_CARDS) {
+            repeated.push(...places);
+            i++;
+        }
+        return repeated.slice(0, MIN_CARDS);
+    }
+
     // Only show full-page spinner on initial load
     if (loading && places.length === 0 && !searchInput) {
         return <Spinner />;
     }
+
+    const displayPlaces = getDisplayPlaces();
 
     return (
         <div>
@@ -72,11 +91,11 @@ export default function IndexPage() {
             )}
 
             <div className="mt-4 grid gap-x-6 gap-y-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                {places.length > 0 && places.map(place => (
-                    <Link to={'/place/' + place._id} key={place._id}>
+                {displayPlaces.length > 0 && displayPlaces.map((place, idx) => (
+                    <Link to={'/place/' + place._id} key={place._id + '-' + idx}>
                         <div className="bg-gray-500 mb-2 rounded-2xl">
                             {place.photos?.[0] && (
-                                <img className="rounded-2xl object-cover aspect-square" src={'http://localhost:4000/uploads/' + place.photos?.[0]} alt="" />
+                                <img className="rounded-2xl object-cover aspect-square" src={API_URL + '/uploads/' + place.photos?.[0]} alt="" />
                             )}
                         </div>
 

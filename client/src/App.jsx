@@ -15,8 +15,8 @@ import BookingsPage from './pages/BookingsPage'
 import BookingPlace from './pages/BookingPlace'
 import NotFoundPage from './pages/NotFoundPage'
 
-axios.defaults.baseURL='http://localhost:4000';
-axios.defaults.withCredentials=true;
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+axios.defaults.withCredentials = true;
 
 function App() {
   return (

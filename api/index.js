@@ -17,6 +17,15 @@ const Booking = require('./models/booking.js');
 
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = process.env.JWT_SECRET;
+const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+const isProduction = process.env.NODE_ENV === 'production';
+
+const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+};
 
 // ── Middleware ──────────────────────────────────────────────────────────
 app.use(express.json());
@@ -24,7 +33,7 @@ app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
 app.use(cors({
     credentials: true,
-    origin: 'http://localhost:5173',
+    origin: clientUrl,
 }));
 
 // ── Rate Limiting ──────────────────────────────────────────────────────
@@ -133,7 +142,7 @@ app.post('/login', authLimiter, async (req, res) => {
             if (err) {
                 return res.status(500).json({ error: 'token_error', message: 'Failed to create session' });
             }
-            res.cookie('token', token).json(userDoc);
+            res.cookie('token', token, cookieOptions).json(userDoc);
         });
     } catch (error) {
         res.status(500).json({ error: 'server_error', message: 'Login failed' });
@@ -160,7 +169,7 @@ app.get('/profile', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-    res.cookie('token', '').json(true);
+    res.cookie('token', '', { ...cookieOptions, maxAge: 0 }).json(true);
 });
 
 // ── Upload Routes ──────────────────────────────────────────────────────
@@ -356,4 +365,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'server_error', message: 'Something went wrong' });
 });
 
-app.listen(4000);
+const port = process.env.PORT || 4000;
+app.listen(port, () => {
+    console.log('Server running on port ' + port);
+});

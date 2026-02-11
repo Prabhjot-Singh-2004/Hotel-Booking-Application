@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
 export default function PlaceGallery({ place }) {
 
     const [showAllPhotos, setShowAllPhotos] = useState(false);
@@ -18,7 +20,7 @@ export default function PlaceGallery({ place }) {
                     </div>
                     {place?.photos?.length > 0 && place.photos.map(photo => (
                         <div className="w-full" key={photo}>
-                            <img className="w-full max-w-4xl mx-auto object-cover" src={'http://localhost:4000/uploads/' + photo} alt="" />
+                            <img className="w-full max-w-4xl mx-auto object-cover" src={API_URL + '/uploads/' + photo} alt="" />
                         </div>
                     ))}
                 </div>
@@ -32,17 +34,17 @@ export default function PlaceGallery({ place }) {
                 <div>
                     {place.photos?.[0] && (
                         <div className="">
-                            <img onClick={() => setShowAllPhotos(true)} className="cursor-pointer aspect-square object-cover w-full" src={'http://localhost:4000/uploads/' + place.photos[0]} alt="" />
+                            <img onClick={() => setShowAllPhotos(true)} className="cursor-pointer aspect-square object-cover w-full" src={API_URL + '/uploads/' + place.photos[0]} alt="" />
                         </div>
                     )}
                 </div>
                 <div className="hidden md:grid">
                     {place.photos?.[1] && (
-                        <img onClick={() => setShowAllPhotos(true)} className="cursor-pointer aspect-square object-cover" src={'http://localhost:4000/uploads/' + place.photos[1]} alt="" />
+                        <img onClick={() => setShowAllPhotos(true)} className="cursor-pointer aspect-square object-cover" src={API_URL + '/uploads/' + place.photos[1]} alt="" />
                     )}
                     <div className="overflow-hidden">
                         {place.photos?.[2] && (
-                            <img onClick={() => setShowAllPhotos(true)} className="cursor-pointer aspect-square object-cover relative top-2" src={'http://localhost:4000/uploads/' + place.photos[2]} alt="" />
+                            <img onClick={() => setShowAllPhotos(true)} className="cursor-pointer aspect-square object-cover relative top-2" src={API_URL + '/uploads/' + place.photos[2]} alt="" />
                         )}
                     </div>
                 </div>

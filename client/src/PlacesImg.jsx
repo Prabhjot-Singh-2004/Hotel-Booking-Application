@@ -1,3 +1,5 @@
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
 export default function PlacesImg({place,index=0,className}){
     if(!place.photos?.length){
         return '';
@@ -8,6 +10,6 @@ export default function PlacesImg({place,index=0,className}){
     }
 
     return(
-        <img className={className} src={'http://localhost:4000/uploads/'+ place.photos[index]} alt="" />
+        <img className={className} src={API_URL + '/uploads/'+ place.photos[index]} alt="" />
     );
 }
